@@ -18,6 +18,7 @@ if (!result.success) {
 }
 
 for (const file of await readdir('public')) {
+  if (file.endsWith('.svg')) continue // icon source, not shipped
   await copyFile(`public/${file}`, `dist/${file}`)
 }
 

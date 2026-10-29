@@ -46,15 +46,21 @@ None. The page still performs the clipboard write — the extension only rewrite
 the argument on its way there, so it never needs clipboard access itself. The
 manifest requests only `content_scripts` on `x.com` and `twitter.com`.
 
-## Install (unpacked)
+## Install
+
+**From a release** (no toolchain needed): download the `xlink-clean-<version>.zip`
+from [Releases](../../releases), unzip it, then `chrome://extensions` → enable
+**Developer mode** → **Load unpacked** → select the unzipped folder.
+
+**From source:**
 
 ```sh
 bun install
 bun run build        # writes dist/
 ```
 
-Then `chrome://extensions` → enable **Developer mode** → **Load unpacked** →
-select `dist/`.
+Then load `dist/` as an unpacked extension the same way. Chrome 111+ is required
+for the `world: "MAIN"` content script.
 
 ## Develop
 
@@ -66,6 +72,16 @@ bun run build        # bundle src/main.ts -> dist/main.js (IIFE) + copy manifest
 
 `dist/` is throwaway: `build.ts` wipes and regenerates it.
 
+## Repository layout
+
+```
+src/clean-x-url.ts    pure URL rewrite rules, no DOM
+src/main.ts           content script: clipboard + copy-event hooks
+src/*.test.ts         bun test
+public/               manifest, icons (icon.svg is the source)
+build.ts              src/main.ts -> dist/main.js (IIFE), copies public/
+```
+
 ## Limitations
 
 - **`t.co` short links** cannot be resolved without a network round trip, so
@@ -76,5 +92,9 @@ bun run build        # bundle src/main.ts -> dist/main.js (IIFE) + copy manifest
 - Clipboard writes from a headless test browser are refused by Chromium, so the
   interceptor is verified by asserting what it hands to `writeText` and what the
   `copy` event payload contains (`dist/` behaviour, not OS clipboard).
-- No icon in the manifest yet; the Web Store listing needs a 128×128 PNG in
-  `public/` before publishing.
+- Icons are rendered from `public/icon.svg` at 16/32/48/128; the Web Store
+  listing also wants a 1280×800 screenshot, which is not in the repo yet.
+
+## License
+
+MIT — see [LICENSE](LICENSE).
