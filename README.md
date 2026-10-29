@@ -92,8 +92,8 @@ build.ts              src/main.ts -> dist/main.js (IIFE), copies public/
 - Clipboard writes from a headless test browser are refused by Chromium, so the
   interceptor is verified by asserting what it hands to `writeText` and what the
   `copy` event payload contains (`dist/` behaviour, not OS clipboard).
-- Icons are rendered from `public/icon.svg` at 16/32/48/128; the Web Store
-  listing also wants a 1280×800 screenshot, which is not in the repo yet.
+- Distribution is source + release zip only, so installs are manual and there
+  are no auto-updates.
 
 ## License
 
