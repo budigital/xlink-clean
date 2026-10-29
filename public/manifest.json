@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "Clean X Link",
+  "version": "1.0.0",
+  "description": "Copies X/Twitter post links without tracking parameters. Requests no permissions.",
+  "content_scripts": [
+    {
+      "matches": ["*://x.com/*", "*://twitter.com/*"],
+      "js": ["main.js"],
+      "run_at": "document_start",
+      "world": "MAIN",
+      "all_frames": true
+    }
+  ]
+}
