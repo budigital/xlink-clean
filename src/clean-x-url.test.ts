@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test'
-import { cleanXUrl } from './clean-x-url.ts'
+import { cleanShareData, cleanXUrl } from './clean-x-url.ts'
 
 describe('cleanXUrl', () => {
   test('strips the share attribution tail', () => {
@@ -59,5 +59,32 @@ describe('cleanXUrl', () => {
     ]) {
       expect(cleanXUrl(untouched)).toBe(untouched)
     }
+  })
+})
+
+describe('cleanShareData', () => {
+  test('strips the tracking tail from the shared url', () => {
+    expect(cleanShareData({ url: 'https://x.com/a/status/42?s=20' })).toEqual({
+      url: 'https://x.com/a/status/42',
+    })
+  })
+
+  test('keeps the other share fields and their order', () => {
+    const data = { title: 'a on X', url: 'https://x.com/a/status/42?s=20&t=abc', text: 'hi' }
+    expect(cleanShareData(data)).toEqual({
+      title: 'a on X',
+      url: 'https://x.com/a/status/42',
+      text: 'hi',
+    })
+    expect(Object.keys(cleanShareData(data))).toEqual(Object.keys(data))
+  })
+
+  test('returns the same object when there is nothing to clean', () => {
+    const clean: ShareData = { url: 'https://x.com/a/status/42' }
+    expect(cleanShareData(clean)).toBe(clean)
+    const noUrl: ShareData = { text: 'https://x.com/a/status/42?s=20' }
+    expect(cleanShareData(noUrl)).toBe(noUrl)
+    const other: ShareData = { url: 'https://example.com/a/status/42?s=20' }
+    expect(cleanShareData(other)).toBe(other)
   })
 })

@@ -1,4 +1,4 @@
-import { cleanXUrl } from './clean-x-url.ts'
+import { cleanShareData, cleanXUrl } from './clean-x-url.ts'
 
 /**
  * Rewrites the argument of `navigator.clipboard.writeText`, which is what X's
@@ -15,6 +15,26 @@ function patchClipboardWrite(): void {
     writable: true,
     value(data: string): Promise<void> {
       return writeText(typeof data === 'string' ? cleanXUrl(data) : data)
+    },
+  })
+}
+
+/**
+ * "Share post via …" hands the same tracked link to the OS share sheet via
+ * `navigator.share({url})`. X only renders that menu item when
+ * `navigator.share` is a function, and the browser requires transient user
+ * activation, so the wrapper must stay a plain function that calls through
+ * synchronously.
+ */
+function patchShare(): void {
+  const share = navigator.share
+  if (typeof share !== 'function') return
+
+  Object.defineProperty(navigator, 'share', {
+    configurable: true,
+    writable: true,
+    value(data: ShareData): Promise<void> {
+      return share.call(navigator, cleanShareData(data))
     },
   })
 }
@@ -49,4 +69,5 @@ function onCopy(event: ClipboardEvent): void {
 }
 
 patchClipboardWrite()
+patchShare()
 document.addEventListener('copy', onCopy, true)

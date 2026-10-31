@@ -45,3 +45,19 @@ export function cleanXUrl(input: string): string {
   if (cleaned === trimmed) return trimmed === input ? input : trimmed
   return cleaned
 }
+
+/**
+ * X's "Share post via …" calls `navigator.share({url})` with the same share
+ * URL builder as Copy link, so the payload carries the same `?s=20` tail.
+ * `title`, `text` and `files` are passed through: X sends only `url`, and a
+ * tweet body is prose, not a link to rewrite. Same object back when unchanged.
+ */
+export function cleanShareData(data: ShareData): ShareData {
+  const { url } = data
+  if (typeof url !== 'string') return data
+
+  const cleaned = cleanXUrl(url)
+  if (cleaned === url) return data
+
+  return { ...data, url: cleaned }
+}

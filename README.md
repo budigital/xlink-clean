@@ -36,6 +36,13 @@ Two hooks, both at the moment of copying:
    `document.execCommand('copy')` path (a hidden input selected and copied),
    including a text selection that is exactly one post link.
 
+**Share → "Share post via …"** is covered too: X calls
+`navigator.share({url})` with the same share-URL builder as Copy link, so the
+link handed to the OS share sheet carries the same `?s=20` tail. The extension
+wraps `navigator.share` and cleans `url` before the native call, keeping the
+wrapper a plain synchronous pass-through because the browser requires transient
+user activation and X only renders that menu item when `navigator.share` exists.
+
 Only arguments that parse as an `x.com` / `twitter.com` post URL are rewritten.
 Profiles, other hosts, YouTube's `?t=42` timestamps, and plain text pass through
 untouched.
@@ -76,7 +83,7 @@ bun run build        # bundle src/main.ts -> dist/main.js (IIFE) + copy manifest
 
 ```
 src/clean-x-url.ts    pure URL rewrite rules, no DOM
-src/main.ts           content script: clipboard + copy-event hooks
+src/main.ts           content script: clipboard, share, and copy-event hooks
 src/*.test.ts         bun test
 public/               manifest, icons (icon.svg is the source)
 build.ts              src/main.ts -> dist/main.js (IIFE), copies public/
